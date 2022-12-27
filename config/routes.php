@@ -5,12 +5,12 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
 
 require __DIR__ . "/../vendor/autoload.php";
-require __DIR__ . "/../config/database.php";
 
 $app = AppFactory::create();
 
-(require __DIR__ . '/../config/routes.php')($app);
-(require __DIR__ . "/../config/middleware.php")( $app );
+// routes
+
+$app->get("/", "App\Controller\Home:getHelp");
+$app->get("/status", "App\Controller\Home:getStatus");
 
 
-$app->run();

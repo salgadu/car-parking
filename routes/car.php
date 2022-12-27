@@ -6,6 +6,15 @@ use Slim\Factory\AppFactory;
 
 $app = AppFactory::create();
 
+
+// $app->group("/cars", function () use ($app) {
+//     $app->get("/all", "App\Controller\Car:getAll");
+//     $app->get("/{id}", "App\Controller\Car:get");
+//     $app->post("/add", "App\Controller\Car:add");
+//     $app->put("/update/{id}", "App\Controller\Car:update");
+//     $app->delete("/delete/{id}", "App\Controller\Car:delete");
+// });
+
 // Obter todos os carros
 $app->get("/cars/all", function (
     Request $request,
