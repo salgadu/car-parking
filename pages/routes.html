@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Work+Sans:300,400,700,900&display=swap" />
+    <style>
+      *,
+      *:before,
+      *:after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family: "Work Sans", sans-serif;
+      }
+
+      html,
+      body {
+        height: 100vh;
+        width: 100vw;
+      }
+
+      .first_page {
+        height: 100vh;
+        width: 100vw;
+        background: url("https://media.wired.com/photos/5926b775cfe0d93c47431281/16:9/w_1000,c_limit/Parking_HP_GettyImages-83314262.png");
+        background-size: 100%;
+        background-position: center;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .first_page_container {
+        backdrop-filter: blur(0px) saturate(200%);
+        -webkit-backdrop-filter: blur(0px) saturate(200%);
+        background-color: rgba(17, 25, 40, 0.8);
+        border-radius: 50px;
+        border: none;
+        width: 80%;
+        height: 80%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+      }
+
+      h1 {
+        color: aliceblue;
+        font-size: 3rem;
+        font-weight: 700;
+        line-height: 1.5;
+        text-align: center;
+      }
+
+      p {
+        color: aliceblue;
+        padding: 1.875rem;
+        font-size: 1.5rem;
+        font-weight: 300;
+        line-height: 1.5;
+        text-align: center;
+      }
+
+      button {
+        color: aliceblue;
+        width: 10rem;
+        height: 3.5rem;
+        backdrop-filter: blur(10px) saturate(160%);
+        -webkit-backdrop-filter: blur(10px) saturate(160%);
+        background-color: rgba(183, 195, 214, 0.38);
+        border-radius: 20px;
+        border: none;
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.5;
+        text-align: center;
+        cursor: pointer;
+      }
+
+      .second_page {
+        height: 100vh;
+        width: 100vw;
+        display: flex;
+        justify-content: center;
+        background: #42275a;
+        background: linear-gradient(to right, #734b6d, #42275a);
+      }
+
+      .second_page_container {
+        height: 20%;
+        width: 100vw;
+        align-items: center;
+      }
+
+      h2 {
+        color: aliceblue;
+        font-size: 2rem;
+        font-weight: 700;
+        line-height: 1.5;
+        text-align: center;
+        margin: 1rem 0;
+      }
+
+      .second_text {
+        color: aliceblue;
+        padding-left: 1.875rem;
+        padding-right: 1.875rem;
+        font-size: 1.5rem;
+        font-weight: 300;
+        line-height: 1.5;
+        text-align: center;
+      }
+
+      .routes {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .divide {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        margin: 2rem;
+        padding: 20px;
+        backdrop-filter: blur(10px) saturate(160%);
+        -webkit-backdrop-filter: blur(10px) saturate(160%);
+        background-color: rgba(183, 195, 214, 0.38);
+        border-radius: 20px;
+        border: none;
+      }
+
+      h3 {
+        color: aliceblue;
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.5;
+      }
+
+      ul {
+        list-style-type: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      li {
+        color: aliceblue;
+        font-size: 1rem;
+        font-weight: 300;
+        line-height: 1.5;
+        margin: 0.5rem 0;
+      }
+
+      a {
+        text-decoration: none;
+        color: rgb(4, 29, 54);
+        font-weight: bold;
+      }
+
+      .footer {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        margin-top: 3.5rem;
+        font-size: 0.6rem;
+      }
+    </style>
+  </head>
+  <body>
+    <section id="section01" class="first_page">
+      <div class="first_page_container">
+        <h1>Bem Vindo(a)</h1>
+        <p> Olá! Bem-vindo à nossa API de estacionamento. Aqui, você pode acessar informações sobre disponibilidade de vagas. Esperamos que você tenha uma experiência agradável e fácil de usar. Qualquer dúvida ou problema, por favor, não hesite em entrar em contato conosco. Agradecemos sua visita e esperamos vê-lo novamente em breve! </p>
+        <a class="scroll-down" href="#section02">
+          <button>Rotas</button>
+        </a>
+      </div>
+    </section>
+    <section id="section02" class="second_page">
+      <div class="second_page_container">
+        <h2>Rotas</h2>
+        <p> Aqui estão as rotas disponíveis para acesso à API. Para mais informações, por favor, acesse a documentação. </p>
+        <div class="routes">
+          <div class="divide">
+            <h3>User</h3>
+            <ul>
+              <li>POST <a href="localhost:8000/api/v1/user/auth/signin">/api/v1/user/auth/signin</a>
+              </li>
+              <li>POST <a href="localhost:8000/api/v1/user/auth/signup">/api/v1/user/auth/signup</a>
+              </li>
+              <li>GET <a href="localhost:8000/api/v1/user/all">/api/v1/user/all</a>
+              </li>
+              <li>GET <a href="localhost:8000/api/v1/user/{id}">/api/v1/user/{id}</a>
+              </li>
+              <li>POST <a href="localhost:8000/api/v1/user/add">/api/v1/user/add</a>
+              </li>
+              <li>PUT <a href="localhost:8000/api/v1/user/{id}">/api/v1/user//{id}</a>
+              </li>
+              <li>DELETE <a href="localhost:8000/api/v1/user/{id}">/api/v1/user/{id}</a>
+              </li>
+            </ul>
+          </div>
+          <div class="divide">
+            <h3>Car</h3>
+            <ul>
+              <li>GET <a href="localhost:8000/api/v1/car/all">/api/v1/car/all</a>
+              </li>
+              <li>GET <a href="localhost:8000/api/v1/car/{id}">/api/v1/car/{id}</a>
+              </li>
+              <li>POST <a href="localhost:8000/api/v1/car/add">/api/v1/car/add</a>
+              </li>
+              <li>PUT <a href="localhost:8000/api/v1/car/{id}">/api/v1/car/{id}</a>
+              </li>
+              <li>DELETE <a href="localhost:8000/api/v1/car/{id}">/api/v1/car/{id}</a>
+              </li>
+            </ul>
+          </div>
+          <div class="divide">
+            <h3>Owner</h3>
+            <ul>
+              <li>GET <a href="localhost:8000/api/v1/owner/all">/api/v1/owner/all</a>
+              </li>
+              <li>GET <a href="localhost:8000/api/v1/owner/{id}">/api/v1/owner/{id}</a>
+              </li>
+              <li>POST <a href="localhost:8000/api/v1/owner/add">/api/v1/owner/add</a>
+              </li>
+              <li>PUT <a href="localhost:8000/api/v1/owner/{id}">/api/v1/owner/{id}</a>
+              </li>
+              <li>DELETE <a href="localhost:8000/api/v1/owner/{id}">/api/v1/owner/{id}</a>
+              </li>
+            </ul>
+          </div>
+          <div class="divide">
+            <h3>Register</h3>
+            <ul>
+              <li>GET <a href="localhost:8000/api/v1/register/all">/api/v1/register/all</a>
+              </li>
+              <li>GET <a href="localhost:8000/api/v1/register/{id}">/api/v1/register/{id}</a>
+              </li>
+              <li>POST <a href="localhost:8000/api/v1/register/add">/api/v1/register/add</a>
+              </li>
+              <li>PUT <a href="localhost:8000/api/v1/register/{id}">/api/v1/register/{id}</a>
+              </li>
+              <li>DELETE <a href="localhost:8000/api/v1/register/{id}">/api/v1/register/{id}</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div class="footer">developed by $algado</div>
+    </section>
+  </body>
+</html>
