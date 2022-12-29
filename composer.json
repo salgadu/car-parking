@@ -90,7 +90,11 @@
         ],
         "phpunit": "phpunit",
         "phpcs": "phpcs",
-        "phpstan": "phpstan --memory-limit=-1"
+        "phpstan": "phpstan --memory-limit=-1",
+        "restart-db": "php extra/restart-db.php",
+        "start": "php -S localhost:8000 -t public public/index.php",
+        "tester": "php extra/teste.php"
+
     },
     "suggest": {
         "ext-simplexml": "Needed to support XML format in BodyParsingMiddleware",
