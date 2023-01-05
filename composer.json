@@ -103,6 +103,7 @@
         "php-di/php-di": "PHP-DI is the recommended container library to be used with Slim"
     },
     "config": {
-        "sort-packages": true
+        "sort-packages": true,
+        "process-timeout": 0
     }
 }

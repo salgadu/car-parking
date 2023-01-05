@@ -1,4 +1,10 @@
 <?php
+
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: access");
+header("Access-Control-Allow-Methods: GET, POST, OPTIONS, DELETE, PUT");
+header("Access-Control-Allow-Credentials: true");
+
 use Psr\Http\Message\ResponseInterface as Response;
 use Psr\Http\Message\ServerRequestInterface as Request;
 use Slim\Factory\AppFactory;
@@ -80,45 +86,58 @@ $app->group("/api/v1", function ($app) {
                 $db = new DB();
                 $pdo = $db->connect();
 
-                $sql = "SELECT * FROM tbl_user WHERE email = :email";
-                $stmt = $pdo->prepare($sql);
-                $stmt->bindParam(":email", $email);
-                $stmt->execute();
-                $user = $stmt->fetch(PDO::FETCH_OBJ);
+                try {
+                    $sql = "SELECT * FROM tbl_user WHERE email = :email";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->bindParam(":email", $email);
+                    $stmt->execute();
+                    $user = $stmt->fetch(PDO::FETCH_OBJ);
 
-                if ($user) {
+                    if ($user) {
+                        $response->getBody()->write(
+                            json_encode([
+                                "status" => 409,
+                                "message" => "Usuário já cadastrado",
+                            ])
+                        );
+                        return $response
+                            ->withHeader("Content-Type", "application/json")
+                            ->withStatus(409);
+                    }
+
+                    $sql =
+                        "INSERT INTO tbl_user (email, password, name) VALUES (:email, :password, :name)";
+                    $stmt = $pdo->prepare($sql);
+                    $stmt->bindParam(":email", $email);
+                    $stmt->bindParam(
+                        ":password",
+                        password_hash($password, PASSWORD_DEFAULT)
+                    );
+                    $stmt->bindParam(":name", $name);
+
+                    $stmt->execute();
+
                     $response->getBody()->write(
                         json_encode([
-                            "status" => 409,
-                            "message" => "Usuário já cadastrado",
+                            "status" => 201,
+                            "message" => "Usuario cadastrado com sucesso",
                         ])
                     );
                     return $response
                         ->withHeader("Content-Type", "application/json")
-                        ->withStatus(409);
+                        ->withStatus(201);
+                } catch (PDOException $e) {
+                    $response->getBody()->write(
+                        json_encode([
+                            "status" => 500,
+                            "message" => "Erro ao cadastrar usuário",
+                            "error" => $e->getMessage(),
+                        ])
+                    );
+                    return $response
+                        ->withHeader("Content-Type", "application/json")
+                        ->withStatus(500);
                 }
-
-                $sql =
-                    "INSERT INTO tbl_user (email, password, name) VALUES (:email, :password, :name)";
-                $stmt = $pdo->prepare($sql);
-                $stmt->bindParam(":email", $email);
-                $stmt->bindParam(
-                    ":password",
-                    password_hash($password, PASSWORD_DEFAULT)
-                );
-                $stmt->bindParam(":name", $name);
-
-                $stmt->execute();
-
-                $response->getBody()->write(
-                    json_encode([
-                        "status" => 201,
-                        "message" => "Usuario cadastrado com sucesso",
-                    ])
-                );
-                return $response
-                    ->withHeader("Content-Type", "application/json")
-                    ->withStatus(201);
             });
         });
 
@@ -378,7 +397,29 @@ $app->group("/api/v1", function ($app) {
                 $cars = $stmt->fetchAll(PDO::FETCH_OBJ);
                 $db = null;
 
-                return $response->withJson($cars, 200);
+                if (!$cars) {
+                    $response->getBody()->write(
+                        json_encode([
+                            "status" => 404,
+                            "message" => "Nenhum carro encontrado",
+                        ])
+                    );
+                    return $response
+                        ->withHeader("Content-Type", "application/json")
+                        ->withStatus(404);
+                }
+
+                $response->getBody()->write(
+                    json_encode([
+                        "status" => 200,
+                        "message" => "Carros encontrados com sucesso",
+                        "data" => $cars,
+                    ])
+                );
+                return $response
+                    ->withHeader("Content-Type", "application/json")
+                    ->withStatus(200);
+
             } catch (PDOException $e) {
                 $error = [
                     "status" => "failed",
@@ -405,7 +446,28 @@ $app->group("/api/v1", function ($app) {
                 $car = $stmt->fetch(PDO::FETCH_OBJ);
                 $db = null;
 
-                return $response->withJson($car, 200);
+                if (!$car) {
+                    $response->getBody()->write(
+                        json_encode([
+                            "status" => 404,
+                            "message" => "Carro não encontrado",
+                        ])
+                    );
+                    return $response
+                        ->withHeader("Content-Type", "application/json")
+                        ->withStatus(404);
+                }
+
+                $response->getBody()->write(
+                    json_encode([
+                        "status" => 200,
+                        "message" => "Carro encontrado com sucesso",
+                        "data" => $car,
+                    ])
+                );
+                return $response
+                    ->withHeader("Content-Type", "application/json")
+                    ->withStatus(200);
             } catch (PDOException $e) {
                 $error = [
                     "status" => "failed",
@@ -541,7 +603,28 @@ $app->group("/api/v1", function ($app) {
                 $owners = $stmt->fetchAll(PDO::FETCH_OBJ);
                 $db = null;
 
-                return $response->withJson($owners, 200);
+                if (!$owners) {
+                    $response->getBody()->write(
+                        json_encode([
+                            "status" => 404,
+                            "message" => "Nenhum proprietário encontrado",
+                        ])
+                    );
+                    return $response
+                        ->withHeader("Content-Type", "application/json")
+                        ->withStatus(404);
+                }
+
+                $response->getBody()->write(
+                    json_encode([
+                        "status" => 200,
+                        "message" => "Proprietários encontrados com sucesso",
+                        "data" => $owners,
+                    ])
+                );
+                return $response
+                    ->withHeader("Content-Type", "application/json")
+                    ->withStatus(200);
             } catch (PDOException $e) {
                 $error = [
                     "status" => "failed",
@@ -568,7 +651,28 @@ $app->group("/api/v1", function ($app) {
                 $owner = $stmt->fetch(PDO::FETCH_OBJ);
                 $db = null;
 
-                return $response->withJson($owner, 200);
+                if (!$owner) {
+                    $response->getBody()->write(
+                        json_encode([
+                            "status" => 404,
+                            "message" => "Proprietário não encontrado",
+                        ])
+                    );
+                    return $response
+                        ->withHeader("Content-Type", "application/json")
+                        ->withStatus(404);
+                }
+
+                $response->getBody()->write(
+                    json_encode([
+                        "status" => 200,
+                        "message" => "Proprietário encontrado com sucesso",
+                        "data" => $owner,
+                    ])
+                );
+                return $response
+                    ->withHeader("Content-Type", "application/json")
+                    ->withStatus(200);
             } catch (PDOException $e) {
                 $error = [
                     "status" => "failed",
@@ -690,7 +794,28 @@ $app->group("/api/v1", function ($app) {
                 $registers = $stmt->fetchAll(PDO::FETCH_OBJ);
                 $db = null;
 
-                return $response->withJson($registers, 200);
+                if (!$registers) {
+                    $response->getBody()->write(
+                        json_encode([
+                            "status" => 404,
+                            "message" => "Nenhum registro encontrado",
+                        ])
+                    );
+                    return $response
+                        ->withHeader("Content-Type", "application/json")
+                        ->withStatus(404);
+                }
+
+                $response->getBody()->write(
+                    json_encode([
+                        "status" => 200,
+                        "message" => "Registros encontrados com sucesso",
+                        "data" => $registers,
+                    ])
+                );
+                return $response
+                    ->withHeader("Content-Type", "application/json")
+                    ->withStatus(200);
             } catch (PDOException $e) {
                 $error = [
                     "status" => "failed",
@@ -717,7 +842,28 @@ $app->group("/api/v1", function ($app) {
                 $register = $stmt->fetch(PDO::FETCH_OBJ);
                 $db = null;
 
-                return $response->withJson($register, 200);
+                if (!$register) {
+                    $response->getBody()->write(
+                        json_encode([
+                            "status" => 404,
+                            "message" => "Registro não encontrado",
+                        ])
+                    );
+                    return $response
+                        ->withHeader("Content-Type", "application/json")
+                        ->withStatus(404);
+                }
+
+                $response->getBody()->write(
+                    json_encode([
+                        "status" => 200,
+                        "message" => "Registro encontrado com sucesso",
+                        "data" => $register,
+                    ])
+                );
+                return $response
+                    ->withHeader("Content-Type", "application/json")
+                    ->withStatus(200);
             } catch (PDOException $e) {
                 $error = [
                     "status" => "failed",
