@@ -24,7 +24,8 @@ $app->group("/api/v1", function ($app) {
                 Response $response,
                 array $args
             ) {
-                $data = $request->getParsedBody();
+
+                $data = json_decode($request->getBody()->__toString(), true);
                 $email = $data["email"];
                 $password = $data["password"];
 
@@ -78,7 +79,7 @@ $app->group("/api/v1", function ($app) {
                 Response $response,
                 array $args
             ) {
-                $data = $request->getParsedBody();
+                $data = json_decode($request->getBody()->__toString(), true);
                 $email = $data["email"];
                 $password = $data["password"];
                 $name = $data["name"];
@@ -141,242 +142,242 @@ $app->group("/api/v1", function ($app) {
             });
         });
 
-            // Acessing all users
-            $app->get("/all", function (
-                Request $request,
-                Response $response,
-                array $args
-            ) {
-                $db = new DB();
-                $pdo = $db->connect();
+        // Acessing all users
+        $app->get("/all", function (
+            Request $request,
+            Response $response,
+            array $args
+        ) {
+            $db = new DB();
+            $pdo = $db->connect();
 
-                $sql = "SELECT * FROM tbl_user";
-                $stmt = $pdo->prepare($sql);
-                $stmt->execute();
-                $users = $stmt->fetchAll(PDO::FETCH_OBJ);
+            $sql = "SELECT * FROM tbl_user";
+            $stmt = $pdo->prepare($sql);
+            $stmt->execute();
+            $users = $stmt->fetchAll(PDO::FETCH_OBJ);
 
-                if (!$users) {
-                    $response->getBody()->write(
-                        json_encode([
-                            "status" => 404,
-                            "message" => "Nenhum usuário encontrado",
-                        ])
-                    );
-                    return $response
-                        ->withHeader("Content-Type", "application/json")
-                        ->withStatus(404);
-                }
-
+            if (!$users) {
                 $response->getBody()->write(
                     json_encode([
-                        "status" => 200,
-                        "message" => "Usuários encontrados",
-                        "data" => $users,
+                        "status" => 404,
+                        "message" => "Nenhum usuário encontrado",
                     ])
                 );
                 return $response
                     ->withHeader("Content-Type", "application/json")
-                    ->withStatus(200);
-            });
+                    ->withStatus(404);
+            }
 
-            // Acessing a specific user
-            $app->get("/{id}", function (
-                Request $request,
-                Response $response,
-                array $args
-            ) {
-                $id = $args["id"];
+            $response->getBody()->write(
+                json_encode([
+                    "status" => 200,
+                    "message" => "Usuários encontrados",
+                    "data" => $users,
+                ])
+            );
+            return $response
+                ->withHeader("Content-Type", "application/json")
+                ->withStatus(200);
+        });
 
-                $db = new DB();
-                $pdo = $db->connect();
+        // Acessing a specific user
+        $app->get("/{id}", function (
+            Request $request,
+            Response $response,
+            array $args
+        ) {
+            $id = $args["id"];
 
-                $sql = "SELECT * FROM tbl_user WHERE id = :id";
-                $stmt = $pdo->prepare($sql);
-                $stmt->bindParam(":id", $id);
-                $stmt->execute();
-                $user = $stmt->fetch(PDO::FETCH_OBJ);
+            $db = new DB();
+            $pdo = $db->connect();
 
-                if (!$user) {
-                    $response->getBody()->write(
-                        json_encode([
-                            "status" => 404,
-                            "message" => "Usuário não encontrado",
-                        ])
-                    );
-                    return $response
-                        ->withHeader("Content-Type", "application/json")
-                        ->withStatus(404);
-                }
+            $sql = "SELECT * FROM tbl_user WHERE id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(":id", $id);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_OBJ);
 
+            if (!$user) {
                 $response->getBody()->write(
                     json_encode([
-                        "status" => 200,
-                        "message" => "Usuário encontrado",
-                        "data" => $user,
+                        "status" => 404,
+                        "message" => "Usuário não encontrado",
                     ])
                 );
                 return $response
                     ->withHeader("Content-Type", "application/json")
-                    ->withStatus(200);
-            });
+                    ->withStatus(404);
+            }
 
-            // Adding a new user
-            $app->post("/add", function (
-                Request $request,
-                Response $response,
-                array $args
-            ) {
-                $data = $request->getParsedBody();
-                $email = $data["email"];
-                $password = $data["password"];
-                $name = $data["name"];
+            $response->getBody()->write(
+                json_encode([
+                    "status" => 200,
+                    "message" => "Usuário encontrado",
+                    "data" => $user,
+                ])
+            );
+            return $response
+                ->withHeader("Content-Type", "application/json")
+                ->withStatus(200);
+        });
 
-                $db = new DB();
-                $pdo = $db->connect();
+        // Adding a new user
+        $app->post("/add", function (
+            Request $request,
+            Response $response,
+            array $args
+        ) {
+            $data = $request->getParsedBody();
+            $email = $data["email"];
+            $password = $data["password"];
+            $name = $data["name"];
 
-                $sql = "SELECT * FROM tbl_user WHERE email = :email";
-                $stmt = $pdo->prepare($sql);
-                $stmt->bindParam(":email", $email);
-                $stmt->execute();
-                $user = $stmt->fetch(PDO::FETCH_OBJ);
+            $db = new DB();
+            $pdo = $db->connect();
 
-                if ($user) {
-                    $response->getBody()->write(
-                        json_encode([
-                            "status" => 409,
-                            "message" => "Usuário já cadastrado",
-                        ])
-                    );
-                    return $response
-                        ->withHeader("Content-Type", "application/json")
-                        ->withStatus(409);
-                }
+            $sql = "SELECT * FROM tbl_user WHERE email = :email";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(":email", $email);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_OBJ);
 
-                $sql =
-                    "INSERT INTO tbl_user (email, password, name) VALUES (:email, :password, :name)";
-                $stmt = $pdo->prepare($sql);
-                $stmt->bindParam(":email", $email);
-                $stmt->bindParam(
-                    ":password",
-                    password_hash($password, PASSWORD_DEFAULT)
-                );
-                $stmt->bindParam(":name", $name);
-
-                $stmt->execute();
-
+            if ($user) {
                 $response->getBody()->write(
                     json_encode([
-                        "status" => 201,
-                        "message" => "Usuario cadastrado com sucesso",
+                        "status" => 409,
+                        "message" => "Usuário já cadastrado",
                     ])
                 );
                 return $response
                     ->withHeader("Content-Type", "application/json")
-                    ->withStatus(201);
-            });
+                    ->withStatus(409);
+            }
 
-            // Updating a user
-            $app->put("/{id}", function (
-                Request $request,
-                Response $response,
-                array $args
-            ) {
-                $id = $args["id"];
-                $data = $request->getParsedBody();
-                $email = $data["email"];
-                $password = $data["password"];
-                $name = $data["name"];
+            $sql =
+                "INSERT INTO tbl_user (email, password, name) VALUES (:email, :password, :name)";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(":email", $email);
+            $stmt->bindParam(
+                ":password",
+                password_hash($password, PASSWORD_DEFAULT)
+            );
+            $stmt->bindParam(":name", $name);
 
-                $db = new DB();
-                $pdo = $db->connect();
+            $stmt->execute();
 
-                $sql = "SELECT * FROM tbl_user WHERE id = :id";
-                $stmt = $pdo->prepare($sql);
-                $stmt->bindParam(":id", $id);
-                $stmt->execute();
-                $user = $stmt->fetch(PDO::FETCH_OBJ);
+            $response->getBody()->write(
+                json_encode([
+                    "status" => 201,
+                    "message" => "Usuario cadastrado com sucesso",
+                ])
+            );
+            return $response
+                ->withHeader("Content-Type", "application/json")
+                ->withStatus(201);
+        });
 
-                if (!$user) {
-                    $response->getBody()->write(
-                        json_encode([
-                            "status" => 404,
-                            "message" => "Usuário não encontrado",
-                        ])
-                    );
-                    return $response
-                        ->withHeader("Content-Type", "application/json")
-                        ->withStatus(404);
-                }
+        // Updating a user
+        $app->put("/{id}", function (
+            Request $request,
+            Response $response,
+            array $args
+        ) {
+            $id = $args["id"];
+            $data = $request->getParsedBody();
+            $email = $data["email"];
+            $password = $data["password"];
+            $name = $data["name"];
 
-                $sql =
-                    "UPDATE tbl_user SET email = :email, password = :password, name = :name WHERE id = :id";
-                $stmt = $pdo->prepare($sql);
-                $stmt->bindParam(":email", $email);
-                $stmt->bindParam(
-                    ":password",
-                    password_hash($password, PASSWORD_DEFAULT)
-                );
-                $stmt->bindParam(":name", $name);
-                $stmt->bindParam(":id", $id);
+            $db = new DB();
+            $pdo = $db->connect();
 
-                $stmt->execute();
+            $sql = "SELECT * FROM tbl_user WHERE id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(":id", $id);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_OBJ);
 
+            if (!$user) {
                 $response->getBody()->write(
                     json_encode([
-                        "status" => 200,
-                        "message" => "Usuário atualizado com sucesso",
+                        "status" => 404,
+                        "message" => "Usuário não encontrado",
                     ])
                 );
                 return $response
                     ->withHeader("Content-Type", "application/json")
-                    ->withStatus(200);
-            });
+                    ->withStatus(404);
+            }
 
-            // Deleting a user
-            $app->delete("/{id}", function (
-                Request $request,
-                Response $response,
-                array $args
-            ) {
-                $id = $args["id"];
+            $sql =
+                "UPDATE tbl_user SET email = :email, password = :password, name = :name WHERE id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(":email", $email);
+            $stmt->bindParam(
+                ":password",
+                password_hash($password, PASSWORD_DEFAULT)
+            );
+            $stmt->bindParam(":name", $name);
+            $stmt->bindParam(":id", $id);
 
-                $db = new DB();
-                $pdo = $db->connect();
+            $stmt->execute();
 
-                $sql = "SELECT * FROM tbl_user WHERE id = :id";
-                $stmt = $pdo->prepare($sql);
-                $stmt->bindParam(":id", $id);
-                $stmt->execute();
-                $user = $stmt->fetch(PDO::FETCH_OBJ);
+            $response->getBody()->write(
+                json_encode([
+                    "status" => 200,
+                    "message" => "Usuário atualizado com sucesso",
+                ])
+            );
+            return $response
+                ->withHeader("Content-Type", "application/json")
+                ->withStatus(200);
+        });
 
-                if (!$user) {
-                    $response->getBody()->write(
-                        json_encode([
-                            "status" => 404,
-                            "message" => "Usuário não encontrado",
-                        ])
-                    );
-                    return $response
-                        ->withHeader("Content-Type", "application/json")
-                        ->withStatus(404);
-                }
+        // Deleting a user
+        $app->delete("/{id}", function (
+            Request $request,
+            Response $response,
+            array $args
+        ) {
+            $id = $args["id"];
 
-                $sql = "DELETE FROM tbl_user WHERE id = :id";
-                $stmt = $pdo->prepare($sql);
-                $stmt->bindParam(":id", $id);
+            $db = new DB();
+            $pdo = $db->connect();
 
-                $stmt->execute();
+            $sql = "SELECT * FROM tbl_user WHERE id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(":id", $id);
+            $stmt->execute();
+            $user = $stmt->fetch(PDO::FETCH_OBJ);
 
+            if (!$user) {
                 $response->getBody()->write(
                     json_encode([
-                        "status" => 200,
-                        "message" => "Usuário deletado com sucesso",
+                        "status" => 404,
+                        "message" => "Usuário não encontrado",
                     ])
                 );
                 return $response
                     ->withHeader("Content-Type", "application/json")
-                    ->withStatus(200);
-            });
+                    ->withStatus(404);
+            }
+
+            $sql = "DELETE FROM tbl_user WHERE id = :id";
+            $stmt = $pdo->prepare($sql);
+            $stmt->bindParam(":id", $id);
+
+            $stmt->execute();
+
+            $response->getBody()->write(
+                json_encode([
+                    "status" => 200,
+                    "message" => "Usuário deletado com sucesso",
+                ])
+            );
+            return $response
+                ->withHeader("Content-Type", "application/json")
+                ->withStatus(200);
+        });
     });
 
     // Group car
@@ -419,7 +420,6 @@ $app->group("/api/v1", function ($app) {
                 return $response
                     ->withHeader("Content-Type", "application/json")
                     ->withStatus(200);
-
             } catch (PDOException $e) {
                 $error = [
                     "status" => "failed",
@@ -483,7 +483,7 @@ $app->group("/api/v1", function ($app) {
             Response $response,
             array $args
         ) {
-            $data = $request->getParsedBody();
+            $data = json_decode($request->getBody()->__toString(), true);
             $sql =
                 "INSERT INTO tbl_car (brand_model, license_plate, tbl_owner_id) VALUES (:brand_model, :license_plate, :tbl_owner_id)";
 
@@ -501,6 +501,7 @@ $app->group("/api/v1", function ($app) {
                     ":tbl_owner_id",
                     $data["tbl_owner_id"]
                 );
+                echo $data["tbl_owner_id"];
                 $stmt->execute();
 
                 $data["id"] = $conn->lastInsertId();
@@ -523,7 +524,8 @@ $app->group("/api/v1", function ($app) {
             array $args
         ) {
             $id = $args["id"];
-            $data = $request->getParsedBody();
+            $data = json_decode($request->getBody()->__toString(), true);
+
             $sql = "UPDATE tbl_car SET brand_model = :brand_model, license_plate = :license_plate, tbl_owner_id = :tbl_owner_id WHERE id = $id";
 
             try {
@@ -688,7 +690,7 @@ $app->group("/api/v1", function ($app) {
             Response $response,
             array $args
         ) {
-            $data = $request->getParsedBody();
+            $data = json_decode($request->getBody()->__toString(), true);
             $sql =
                 "INSERT INTO tbl_owner (name, telephone) VALUES (:name, :telephone)";
 
@@ -698,7 +700,7 @@ $app->group("/api/v1", function ($app) {
 
                 $stmt = $conn->prepare($sql);
                 $stmt->bindParam(":name", $data["name"]);
-                $stmt->bindParam(":phone", $data["phone"]);
+                $stmt->bindParam(":telephone", $data["telephone"]);
                 $stmt->execute();
 
                 $data["id"] = $conn->lastInsertId();
@@ -721,7 +723,7 @@ $app->group("/api/v1", function ($app) {
             array $args
         ) {
             $id = $args["id"];
-            $data = $request->getParsedBody();
+            $data = json_decode($request->getBody()->__toString(), true);
             $sql = "UPDATE tbl_owner SET name = :name, telephone = :telephone WHERE id = $id";
 
             try {
@@ -730,7 +732,7 @@ $app->group("/api/v1", function ($app) {
 
                 $stmt = $conn->prepare($sql);
                 $stmt->bindParam(":name", $data["name"]);
-                $stmt->bindParam(":phone", $data["phone"]);
+                $stmt->bindParam(":telephone", $data["telephone"]);
                 $stmt->execute();
 
                 $db = null;
@@ -784,7 +786,12 @@ $app->group("/api/v1", function ($app) {
             Response $response,
             array $args
         ) {
-            $sql = "SELECT * FROM tbl_register";
+            $sql = "SELECT r.id AS 'register_id', r.date, r.entry_time, r.departure_time, u.name AS 'user_name', u.email, o.name  AS 'owner_name', o.telephone, c.tbl_owner_id, r.tbl_car_id, c.brand_model, c.license_plate
+                    FROM tbl_register r
+                    JOIN tbl_user u ON r.tbl_user_id = u.id
+                    JOIN tbl_car c ON r.tbl_car_id = c.id AND r.tbl_car_tbl_owner_id = c.tbl_owner_id
+                    JOIN tbl_owner o ON c.tbl_owner_id = o.id
+                    ";
 
             try {
                 $db = new DB();
@@ -832,7 +839,13 @@ $app->group("/api/v1", function ($app) {
             array $args
         ) {
             $id = $args["id"];
-            $sql = "SELECT * FROM tbl_register WHERE id = $id";
+
+            $sql = "SELECT r.id AS 'register_id', r.date, r.entry_time, r.departure_time, u.name AS 'user_name', u.email, o.name AS 'owner_name', o.telephone,c.tbl_owner_id, r.tbl_car_id, c.brand_model, c.license_plate
+                    FROM tbl_register r
+                    JOIN tbl_user u ON r.tbl_user_id = u.id
+                    JOIN tbl_car c ON r.tbl_car_id = c.id AND r.tbl_car_tbl_owner_id = c.tbl_owner_id
+                    JOIN tbl_owner o ON c.tbl_owner_id = o.id
+                    WHERE r.id = $id";
 
             try {
                 $db = new DB();
@@ -879,9 +892,9 @@ $app->group("/api/v1", function ($app) {
             Response $response,
             array $args
         ) {
-            $data = $request->getParsedBody();
+            $data = json_decode($request->getBody()->__toString(), true);
             $sql =
-                "INSERT INTO tbl_register (date, entry_time, departure_time, tbl_user_id, tbl_car_id, tbl_car_owner_id) VALUES (:date, :entry_time, :departure_time, :tbl_user_id, :tbl_car_id, :tbl_car_owner_id)";
+                "INSERT INTO tbl_register (date, entry_time, departure_time, tbl_user_id, tbl_car_id, tbl_car_tbl_owner_id) VALUES (:date, :entry_time, :departure_time, :tbl_user_id, :tbl_car_id, :tbl_car_tbl_owner_id)";
 
             try {
                 $db = new DB();
@@ -893,8 +906,9 @@ $app->group("/api/v1", function ($app) {
                 $stmt->bindParam(":departure_time", $data["departure_time"]);
                 $stmt->bindParam(":tbl_user_id", $data["tbl_user_id"]);
                 $stmt->bindParam(":tbl_car_id", $data["tbl_car_id"]);
-                $stmt->bindParam(":tbl_car_owner_id", $data["tbl_car_owner_id"]);
+                $stmt->bindParam(":tbl_car_tbl_owner_id", $data["tbl_car_tbl_owner_id"]);
                 $stmt->execute();
+
 
                 $data["id"] = $conn->lastInsertId();
                 $db = null;
@@ -918,7 +932,7 @@ $app->group("/api/v1", function ($app) {
             $id = $args["id"];
             $data = $request->getParsedBody();
             $sql =
-                "UPDATE tbl_register SET date = :date, entry_time = :entry_time, departure_time = :departure_time, tbl_user_id = :tbl_user_id, tbl_car_id = :tbl_car_id, tbl_car_owner_id = :tbl_car_owner_id WHERE id = $id";
+                "UPDATE tbl_register SET date = :date, entry_time = :entry_time, departure_time = :departure_time, tbl_user_id = :tbl_user_id, tbl_car_id = :tbl_car_id, tbl_car_tbl_owner_id = :tbl_car_tbl_owner_id WHERE id = $id";
 
             try {
                 $db = new DB();
@@ -930,7 +944,7 @@ $app->group("/api/v1", function ($app) {
                 $stmt->bindParam(":departure_time", $data["departure_time"]);
                 $stmt->bindParam(":tbl_user_id", $data["tbl_user_id"]);
                 $stmt->bindParam(":tbl_car_id", $data["tbl_car_id"]);
-                $stmt->bindParam(":tbl_car_owner_id", $data["tbl_car_owner_id"]);
+                $stmt->bindParam(":tbl_car_tbl_owner_id", $data["tbl_car_tbl_owner_id"]);
                 $stmt->execute();
 
                 $db = null;

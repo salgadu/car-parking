@@ -21,7 +21,7 @@ try {
     $pdo->exec("USE ${name}");
     echo '[OK] Banco de dados selecionado com sucesso' . PHP_EOL;
 
-    $sql = file_get_contents(__DIR__ . './database.sql');
+    $sql = file_get_contents(__DIR__ . '../database.sql');
     $pdo->exec($sql);
     echo '[OK] Registros inseridos com sucesso' . PHP_EOL;
 } catch (PDOException $exception) {
